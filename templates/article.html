@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="container">
+  <h1 class="article-title">{{ slug.replace('-', ' ').title() }}</h1>
+  <p class="article-text">
+    This article explains {{ slug.replace('-', ' ') }} in a clear and beginner‑friendly way.
+    In upcoming versions, this content can be loaded dynamically from the database.
+  </p>
+</section>
+
+{% endblock %}

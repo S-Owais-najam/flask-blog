@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="hero">
+  <h1>Build Your Future in Tech</h1>
+  <p>Professional guides on Web Development & Programming</p>
+  <a href="#articles" class="btn">Explore Articles</a>
+</section>
+
+<section class="container" id="articles">
+  <h2 class="section-title">Latest Articles</h2>
+
+  <div class="grid">
+    {% for article in articles %}
+    <a href="/article/{{ article.slug }}" class="card">
+      <img src="{{ article.img }}">
+      <h3>{{ article.title }}</h3>
+      <p>{{ article.desc }}</p>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}

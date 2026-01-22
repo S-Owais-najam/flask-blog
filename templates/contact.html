@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="container">
+  <h2>Contact Us</h2>
+  <form method="POST">
+    <input type="text" name="name" placeholder="Your Name" required>
+    <input type="email" name="email" placeholder="Your Email" required>
+    <textarea name="message" placeholder="Your Message" required></textarea>
+    <button type="submit">Send Message</button>
+  </form>
+</section>
+
+{% endblock %}
