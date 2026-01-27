@@ -9,18 +9,20 @@ app.secret_key = "supersecretkey"
 # ==============================
 # Azure SQL Connection String
 # ==============================
+# Final Optimized Connection String
 raw_connection_string = (
+    "Driver={ODBC Driver 17 for SQL Server};"  # Jo aapne pehle set kiya tha
     "Server=tcp:codecrafters.database.windows.net,1433;"
-    "Initial Catalog=code_crafter;"
-    "Persist Security Info=False;"
-    "User ID=Owais;"
-    "Password=codecrafter123$;"
-    "MultipleActiveResultSets=False;"
-    "Encrypt=True;"
-    "TrustServerCertificate=False;"
+    "Database=code_crafter;"
+    "Uid=Owais;"
+    "Pwd=codecrafter123$;"
+    "Encrypt=yes;"             # 'True' ki jagah 'yes' (Zaroori)
+    "TrustServerCertificate=no;"
     "Connection Timeout=30;"
 )
 
+# Connection setup
+conn_str = raw_connection_string
 # Connection string configuration
 conn_str = f"DRIVER={{ODBC Driver 17 for SQL Server}};{raw_connection_string}"
 
