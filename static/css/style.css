@@ -82,7 +82,8 @@ header {
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 25px;
+  gap: 30px;
+  padding: 20px 0;
 }
 
 .card {
@@ -92,10 +93,30 @@ header {
   box-shadow: 0 15px 40px rgba(0,0,0,0.1);
   transition: transform .4s, box-shadow .4s;
 }
+/* Card ke andar ki image ko control karne ke liye */
+.card img {
+  width: 100%;           /* Box ki poori chorai cover kare */
+  height: 200px;         /* Ek fix height rakhein taake sare boxes barabar hon */
+  object-fit: cover;     /* Pic stretch nahi hogi balkay sahi se crop hogi */
+  border-radius: 12px;   /* Thora round corners taake card ke sath match kare */
+  margin-bottom: 15px;   /* Text aur image ke darmian fasla */
+  display: block;
+}
 
 .card:hover {
   transform: translateY(-10px);
   box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+}
+.card h3 {
+    font-size: 1.3rem;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.card p {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 15px;
 }
 
 
