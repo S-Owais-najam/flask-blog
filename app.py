@@ -22,7 +22,7 @@ raw_connection_string = (
 )
 
 # Connection string configuration
-conn_str = f"DRIVER={{ODBC Driver 18 for SQL Server}};{raw_connection_string}"
+conn_str = f"DRIVER={{ODBC Driver 17 for SQL Server}};{raw_connection_string}"
 
 def get_db_conn():
     # Establishes connection to Azure SQL
