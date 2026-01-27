@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="container">
+  <h2>Edit Article</h2>
+
+  <form method="POST">
+    <input type="text" name="title" value="{{ article['title'] }}" required>
+    <input type="text" name="slug" value="{{ article['slug'] }}" required>
+    <input type="text" name="image" value="{{ article['image'] }}">
+    <textarea name="content" required>{{ article['content'] }}</textarea>
+    <button type="submit">Update Article</button>
+  </form>
+</section>
+
+{% endblock %}

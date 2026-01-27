@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="container">
+  <h2>Admin Dashboard</h2>
+
+  <a href="/logout" class="btn">Logout</a>
+
+  <h3>Add New Article</h3>
+
+  <form method="POST">
+    <input type="text" name="title" placeholder="Title" required>
+    <input type="text" name="slug" placeholder="Slug (unique)" required>
+    <input type="text" name="image" placeholder="Image URL">
+    <textarea name="content" placeholder="Content" required></textarea>
+    <button type="submit">Publish</button>
+  </form>
+
+  <hr><br>
+
+  <h3>Existing Articles</h3>
+
+  {% for article in articles %}
+    <p>
+      <strong>{{ article['title'] }}</strong>
+      —
+      <a href="/edit/{{ article['id'] }}">Edit</a>
+      |
+      <a href="/delete/{{ article['id'] }}"
+         onclick="return confirm('Are you sure you want to delete this article?')"
+         style="color:red;">
+         Delete
+      </a>
+    </p>
+  {% endfor %}
+</section>
+
+{% endblock %}

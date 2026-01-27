@@ -11,11 +11,17 @@
 <header>
   <nav class="nav">
     <div class="logo">MyBlog</div>
-    <ul>
-      <li><a href="/">Home</a></li>
-      <li><a href="/about">About</a></li>
-      <li><a href="/contact">Contact</a></li>
-    </ul>
+    <ul class="nav-links">
+  <li><a href="/">Home</a></li>
+  <li><a href="/about">About</a></li>
+  <li><a href="/contact">Contact</a></li>
+
+  {% if session.get("admin") %}
+    <li><a href="/admin">Admin</a></li>
+    <li><a href="/logout" class="logout-btn">Logout</a></li>
+  {% endif %}
+</ul>
+
   </nav>
 </header>
 

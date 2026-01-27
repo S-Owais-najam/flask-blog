@@ -2,11 +2,13 @@
 {% block content %}
 
 <section class="container">
-  <h1 class="article-title">{{ slug.replace('-', ' ').title() }}</h1>
-  <p class="article-text">
-    This article explains {{ slug.replace('-', ' ') }} in a clear and beginner‑friendly way.
-    In upcoming versions, this content can be loaded dynamically from the database.
-  </p>
+  <h1 class="article-title">{{ article['title'] }}</h1>
+
+  {% if article['image'] %}
+    <img src="{{ article['image'] }}" style="width:100%;max-width:800px;border-radius:12px;margin:20px 0;">
+  {% endif %}
+
+  <p class="article-text">{{ article['content'] }}</p>
 </section>
 
 {% endblock %}

@@ -2,20 +2,25 @@
 {% block content %}
 
 <section class="hero">
-  <h1>Build Your Future in Tech</h1>
-  <p>Professional guides on Web Development & Programming</p>
-  <a href="#articles" class="btn">Explore Articles</a>
+  <div class="hero-content">
+    <h1 class="fade-in">Build Your Future in Tech</h1>
+    <p class="slide-up">
+      Practical articles on Web Development, Python & Backend Engineering
+    </p>
+    <a href="#articles" class="btn pulse">Explore Articles</a>
+  </div>
 </section>
+
 
 <section class="container" id="articles">
   <h2 class="section-title">Latest Articles</h2>
 
   <div class="grid">
     {% for article in articles %}
-    <a href="/article/{{ article.slug }}" class="card">
-      <img src="{{ article.img }}">
-      <h3>{{ article.title }}</h3>
-      <p>{{ article.desc }}</p>
+    <a href="/article/{{ article['slug'] }}" class="card">
+      <img src="{{ article['image'] }}">
+      <h3>{{ article['title'] }}</h3>
+      <p>{{ article['content'][:100] }}...</p>
     </a>
     {% endfor %}
   </div>
