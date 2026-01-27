@@ -150,6 +150,13 @@ def delete_article(id):
     conn.commit()
     conn.close()
     return redirect("/admin")
+# ==============================
+# About Page Route
+# ==============================
+@app.route("/about")
+def about():
+    # Yeh Flask ko templates folder mein 'about.html' dhundne ka kahega
+    return render_template("about.html")
 
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
