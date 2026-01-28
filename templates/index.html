@@ -2,7 +2,8 @@
 {% block content %}
 
 <section class="hero">
-  <div class="hero-content">
+  <div class="hero-content reveal">
+
     <h1 class="fade-in">Build Your Future in Tech</h1>
     <p class="slide-up">
       Practical articles on Web Development, Python & Backend Engineering
@@ -17,8 +18,9 @@
 
   <div class="grid">
     {% for article in articles %}
-    <a href="/article/{{ article['slug'] }}" class="card">
-      <img src="{{ article['image'] }}"class="card-img">>
+    <a href="/article/{{ article['slug'] }}" class="card reveal">
+
+      <img src="{{ article['image'] }}"class="card-img">
       <h3>{{ article['title'] }}</h3>
       <p>{{ article['content'][:100] }}...</p>
     </a>

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+
+<section class="container">
+  <h2 class="section-title">
+    Search Results for "{{ query }}"
+  </h2>
+
+  {% if articles %}
+    <div class="grid">
+      {% for article in articles %}
+        <a href="/article/{{ article['slug'] }}" class="card reveal">
+          
+          {% if article['image'] %}
+            <img src="{{ article['image'] }}">
+          {% endif %}
+
+          <h3>{{ article['title'] }}</h3>
+          <p>{{ article['content'][:120] }}...</p>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p style="text-align:center; font-size:18px;">
+      ❌ No articles found.
+    </p>
+  {% endif %}
+</section>
+
+{% endblock %}

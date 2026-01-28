@@ -1,120 +1,86 @@
-from flask import Flask, session, render_template, request, redirect, url_for
-import pyodbc 
-import os
-import urllib
+from flask import Flask, session, render_template, request, redirect, url_for, jsonify
+import pyodbc
+import math
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# ==============================
-# Azure SQL Connection String
-# ==============================
-# Final Optimized Connection String
-raw_connection_string = (
-    "Driver={ODBC Driver 17 for SQL Server};"  # Jo aapne pehle set kiya tha
+# ================= AZURE SQL =================
+conn_str = (
+    "Driver={ODBC Driver 17 for SQL Server};"
     "Server=tcp:codecrafters.database.windows.net,1433;"
     "Database=code_crafter;"
     "Uid=Owais;"
     "Pwd=codecrafter123$;"
-    "Encrypt=yes;"             # 'True' ki jagah 'yes' (Zaroori)
+    "Encrypt=yes;"
     "TrustServerCertificate=no;"
     "Connection Timeout=30;"
 )
 
-# Connection setup
-conn_str = raw_connection_string
-# Connection string configuration
-conn_str = f"DRIVER={{ODBC Driver 17 for SQL Server}};{raw_connection_string}"
-
 def get_db_conn():
-    # Establishes connection to Azure SQL
     return pyodbc.connect(conn_str)
 
-# ==============================
-# Database Initialization
-# ==============================
-def init_db():
-    conn = get_db_conn()
-    cursor = conn.cursor()
-    # Create articles table if not exists
-    cursor.execute("""
-        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='articles' AND xtype='U')
-        CREATE TABLE articles (
-            id INT PRIMARY KEY IDENTITY(1,1),
-            title NVARCHAR(255) NOT NULL,
-            slug NVARCHAR(255) UNIQUE NOT NULL,
-            content NVARCHAR(MAX) NOT NULL,
-            image NVARCHAR(MAX)
-        )
-    """)
-    # Create messages table if not exists
-    cursor.execute("""
-        IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='messages' AND xtype='U')
-        CREATE TABLE messages (
-            id INT PRIMARY KEY IDENTITY(1,1),
-            name NVARCHAR(255),
-            email NVARCHAR(255),
-            message NVARCHAR(MAX)
-        )
-    """)
-    conn.commit()
-    conn.close()
+# ================= UTILS =================
+def reading_time(text):
+    return math.ceil(len(text.split()) / 200)
 
-init_db()
-
-# ==============================
-# Routes
-# ==============================
-
+# ================= HOME =================
 @app.route("/")
 def home():
     conn = get_db_conn()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, title, slug, content, image FROM articles ORDER BY id DESC")
+    cursor.execute("SELECT * FROM articles ORDER BY id DESC")
     articles = cursor.fetchall()
     conn.close()
-    return render_template("index.html", articles=articles)
+    return render_template("index.html", articles=articles, reading_time=reading_time)
 
+# ================= ARTICLE =================
 @app.route("/article/<slug>")
 def article(slug):
     conn = get_db_conn()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, title, slug, content, image FROM articles WHERE slug=?", (slug,))
-    article_data = cursor.fetchone()
+    cursor.execute("SELECT * FROM articles WHERE slug=?", (slug,))
+    article = cursor.fetchone()
     conn.close()
-    if article_data is None:
+    if not article:
         return "Article not found", 404
-    return render_template("article.html", article=article_data)
+    return render_template("article.html", article=article, reading_time=reading_time)
 
-@app.route("/admin", methods=["GET", "POST"])
-def admin():
-    if not session.get("admin"):
-        return redirect("/login")
+# ================= SEARCH =================
+@app.route("/search")
+def search():
+    q = request.args.get("q", "")
     conn = get_db_conn()
     cursor = conn.cursor()
-    if request.method == "POST":
-        title, slug = request.form["title"], request.form["slug"]
-        content, image = request.form["content"], request.form["image"]
-        try:
-            cursor.execute("INSERT INTO articles (title, slug, content, image) VALUES (?,?,?,?)", (title, slug, content, image))
-            conn.commit()
-            return redirect("/admin")
-        except Exception as e:
-            return f"❌ Error: {e}"
-        finally:
-            conn.close()
-    cursor.execute("SELECT id, title, slug, content, image FROM articles ORDER BY id DESC")
+    cursor.execute("""
+        SELECT * FROM articles
+        WHERE title LIKE ? OR content LIKE ?
+        ORDER BY id DESC
+    """, (f"%{q}%", f"%{q}%"))
     articles = cursor.fetchall()
     conn.close()
-    return render_template("admin.html", articles=articles)
+    return render_template("search.html", articles=articles, q=q)
 
+@app.route("/search-suggest")
+def search_suggest():
+    q = request.args.get("q", "")
+    conn = get_db_conn()
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT TOP 5 title FROM articles WHERE title LIKE ?",
+        (f"%{q}%",)
+    )
+    results = [row[0] for row in cursor.fetchall()]
+    conn.close()
+    return jsonify(results)
+
+# ================= ADMIN =================
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         if request.form["username"] == "owais" and request.form["password"] == "owais123$":
             session["admin"] = True
             return redirect("/admin")
-        return "❌ Invalid Credentials"
     return render_template("login.html")
 
 @app.route("/logout")
@@ -122,26 +88,62 @@ def logout():
     session.pop("admin", None)
     return redirect("/")
 
-@app.route("/edit/<int:id>", methods=["GET", "POST"])
-def edit_article(id):
+@app.route("/admin", methods=["GET", "POST"])
+def admin():
     if not session.get("admin"):
         return redirect("/login")
+
     conn = get_db_conn()
     cursor = conn.cursor()
+
     if request.method == "POST":
-        title, slug = request.form["title"], request.form["slug"]
-        content, image = request.form["content"], request.form["image"]
-        cursor.execute("UPDATE articles SET title=?, slug=?, content=?, image=? WHERE id=?", (title, slug, content, image, id))
+        cursor.execute("""
+            INSERT INTO articles (title, slug, content, image)
+            VALUES (?,?,?,?)
+        """, (
+            request.form["title"],
+            request.form["slug"],
+            request.form["content"],
+            request.form["image"]
+        ))
+        conn.commit()
+
+    cursor.execute("SELECT * FROM articles ORDER BY id DESC")
+    articles = cursor.fetchall()
+    conn.close()
+    return render_template("admin.html", articles=articles)
+
+@app.route("/edit/<int:id>", methods=["GET", "POST"])
+def edit(id):
+    if not session.get("admin"):
+        return redirect("/login")
+
+    conn = get_db_conn()
+    cursor = conn.cursor()
+
+    if request.method == "POST":
+        cursor.execute("""
+            UPDATE articles
+            SET title=?, slug=?, content=?, image=?
+            WHERE id=?
+        """, (
+            request.form["title"],
+            request.form["slug"],
+            request.form["content"],
+            request.form["image"],
+            id
+        ))
         conn.commit()
         conn.close()
         return redirect("/admin")
-    cursor.execute("SELECT id, title, slug, content, image FROM articles WHERE id=?", (id,))
-    article_data = cursor.fetchone()
+
+    cursor.execute("SELECT * FROM articles WHERE id=?", (id,))
+    article = cursor.fetchone()
     conn.close()
-    return render_template("edit.html", article=article_data)
+    return render_template("edit.html", article=article)
 
 @app.route("/delete/<int:id>")
-def delete_article(id):
+def delete(id):
     if not session.get("admin"):
         return redirect("/login")
     conn = get_db_conn()
@@ -150,25 +152,30 @@ def delete_article(id):
     conn.commit()
     conn.close()
     return redirect("/admin")
-# ==============================
-# About Page Route
-# ==============================
+
+# ================= STATIC PAGES =================
 @app.route("/about")
 def about():
-    # Yeh Flask ko templates folder mein 'about.html' dhundne ka kahega
     return render_template("about.html")
 
 @app.route("/contact", methods=["GET", "POST"])
 def contact():
     if request.method == "POST":
-        name, email, message = request.form["name"], request.form["email"], request.form["message"]
         conn = get_db_conn()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO messages (name, email, message) VALUES (?,?,?)", (name, email, message))
+        cursor.execute("""
+            INSERT INTO messages (name,email,message)
+            VALUES (?,?,?)
+        """, (
+            request.form["name"],
+            request.form["email"],
+            request.form["message"]
+        ))
         conn.commit()
         conn.close()
         return redirect("/contact")
     return render_template("contact.html")
 
+# ================= RUN =================
 if __name__ == "__main__":
     app.run(debug=True)

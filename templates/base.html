@@ -10,11 +10,20 @@
 
 <header>
   <nav class="nav">
-    <div class="logo">MyBlog</div>
+    <a href="{{ url_for('home') }}" class="logo">Code Crafters
+</a>
+
+
     <ul class="nav-links">
   <li><a href="/">Home</a></li>
   <li><a href="/about">About</a></li>
   <li><a href="/contact">Contact</a></li>
+  <form action="/search" method="GET" class="search-box">
+  <input type="text" name="q" placeholder="Search articles..." required>
+</form>
+<button id="darkToggle" class="btn">🌙</button>
+
+
 
   {% if session.get("admin") %}
     <li><a href="/admin">Admin</a></li>
@@ -32,5 +41,6 @@
 </footer>
 
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
 </body>
 </html>
